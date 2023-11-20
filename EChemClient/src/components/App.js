@@ -14,8 +14,8 @@ function App() {
     </Router>
   );
 }
-export default App;
+//export default App;
 
-/*const appDiv = document.getElementById("app");
+const appDiv = document.getElementById("app");
 render(<App/>, appDiv);
-*/
+

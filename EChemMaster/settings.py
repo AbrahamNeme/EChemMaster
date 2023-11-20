@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'EChemServer.apps.EChemServerConfig',
     'rest_framework',
-    'EChemClient.apps.EChemClientConfig'
+    'EChemClient.apps.EChemClientConfig',
+    'rest_framework_serializer_extensions'
 ]
 
 MIDDLEWARE = [

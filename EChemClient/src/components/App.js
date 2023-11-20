@@ -6,6 +6,8 @@ export default function App(props) {
         <div>
             <h1> This is the App.js react component!</h1>
             <h2> :) </h2>
+
+            <h2> Das hier ist ein </h2>
         </div>
     );
 }

@@ -1,0 +1,114 @@
+/* styles.css */
+
+body {
+  background: rgb(8, 30, 156);
+}
+
+.table-1,
+.table-2 {
+  display: grid;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.table-1 {
+  grid-template-columns: repeat(18, 1fr);
+  top: 37.5%;
+}
+
+.table-2 {
+  grid-template-columns: repeat(14, 1fr);
+  top: 85%;
+}
+
+.table-1 > .element:nth-child(1) {
+  grid-column-start: 1;
+  grid-column-end: 18;
+}
+
+.table-1 > .element:nth-child(5),
+.element:nth-child(13) {
+  grid-column-start: 13;
+}
+
+.element {
+  width: 65px;
+  height: 65px;
+  background: white;
+  display: flex;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  border: 1px solid rgb(0, 0, 0);
+}
+
+.symbol {
+  font-weight: bold;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 25px;
+}
+
+.name {
+  margin-bottom: 2px;
+}
+
+.Nonmetal {
+  background: rgb(233, 48, 48);
+  color: white;
+}
+
+.Noble-gas {
+  background: rgb(229, 255, 0);
+}
+
+.Alkali-metal {
+  background: rgb(106, 245, 106);
+}
+
+.Alkaline-earth-metal {
+  background: rgb(249, 175, 232);
+}
+
+.Metalloid {
+  background: rgb(120, 90, 240);
+  color: white;
+}
+
+.Halogen {
+  background: rgb(114, 250, 214);
+}
+
+.Post-transition-metal {
+  background: rgb(255, 192, 4);
+}
+
+.Transition-metal {
+  background: #392cc6;
+}
+
+.Unknown {
+  background: rgb(210, 210, 210);
+}
+
+.element:hover {
+  transition: 0.3s;
+  transform: scale(1.125);
+}
+
+.Lanthanide {
+  background: rgb(45, 46, 49);
+  color: white;
+}
+
+.Actinide {
+  background: rgb(0, 255, 251);
+}
+
+.atomic_number {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bold;
+}
+
+.mass {
+  margin-top: 4px;
+}

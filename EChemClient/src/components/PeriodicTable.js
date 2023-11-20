@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import './styles.css';
+import '../../static/css/index.css';
+import {render} from "react-dom";
 
 function PeriodicTable() {
   useEffect(() => {
@@ -250,12 +251,13 @@ function PeriodicTable() {
 
   return (
   <div>
-    <div className="table-1" style={{ display: 'grid', position: 'absolute', left: '50%', transform: 'translate(-50%, -50%)', gridTemplateColumns: 'repeat(18, 1fr)', top: '37.5%' }}>
+    <div className = 'table-1'></div>
+    <div className = 'table-2'></div>
     </div>
-    <div className="table-2" style={{ display: 'grid', position: 'absolute', left: '50%', transform: 'translate(-50%, -50%)', gridTemplateColumns: 'repeat(14, 1fr)', top: '85%' }}>
-    </div>
-  </div>
   );
 }
 
-export default PeriodicTable;
+//export default PeriodicTable;
+
+const appDiv = document.getElementById("table");
+render(<PeriodicTable/>, appDiv);

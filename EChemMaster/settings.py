@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'EChemServer.apps.EChemServerConfig',
     'rest_framework',
     'EChemClient.apps.EChemClientConfig',
-    'rest_framework_serializer_extensions'
+    'rest_framework_serializer_extensions',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -51,6 +52,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+]
+
+CORS_ALLOWED_ORIGINS = [
+    'https://localhost:7120',
 ]
 
 ROOT_URLCONF = 'EChemMaster.urls'

@@ -40,9 +40,9 @@ class CVEntryService:
         if cls.is_electrode_present('CE', db_entry.system.electrodes):
             entry.ce_electrode = cls.create_ce_electrode(db_entry.get_electrode('CE').__dict__['_descriptor'])
 
-        entry.source = db_entry.source.__dict__
+        entry.source = cls.create_source(db_entry.source.__dict__['_descriptor'])
+        #entry.source = db_entry.source.__dict__['_descriptor']
         entry.citation = db_entry.citation(backend='text')
-
         entry.bibliography = cls.create_bibliography(db_entry.bibliography)
 
         return entry
@@ -91,6 +91,21 @@ class CVEntryService:
         if 'source' in we:
             we_electrode['source'] = we['source']
         return we_electrode
+
+    @classmethod
+    def create_source(cls, so):
+        source = dict()
+        source['citationKey'] = so['citation key']
+        source['url'] = so['url']
+        if 'techniques' in so:
+            if isinstance(so['techniques'], list):
+                source['techniques'] = so['techniques']
+            else:
+                source['techniques'] = so['techniques'].split(", ")
+        source['figure'] = so['figure']
+        source['curve'] = so['curve']
+        source['bibdata'] = so['bibdata']
+        return source
 
     @classmethod
     def create_bibliography(cls, bibliography):

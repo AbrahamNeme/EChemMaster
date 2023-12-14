@@ -14,13 +14,13 @@ class CVEntryService:
         return all_entries
 
     @classmethod
-    def get_cventry_by_name(cls, name, is_many):
+    def get_cventry_by_name(cls, name, skip_plot_data):
         db_entry = cls.db[name]
 
         entry = CVEntry()
         entry.name = name
 
-        if not is_many:
+        if not skip_plot_data:
             columns_as_lists = db_entry.df.values.T.tolist()
             entry.t = columns_as_lists[0]
             entry.t_unit = db_entry.field_unit('t')

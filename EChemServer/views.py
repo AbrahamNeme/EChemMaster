@@ -15,8 +15,9 @@ from .services.cv_entry_service import CVEntryService
 # request -> response
 # request handler
 
-#@method_decorator(csrf_exempt, name='dispatch')
-#@permission_classes([AllowAny])
+# @method_decorator(csrf_exempt, name='dispatch')
+# @permission_classes([AllowAny])
+
 
 @api_view(['GET'])
 def get_all_cventry(request):
@@ -77,7 +78,7 @@ def get_normalized_cventry(request, name, reference_electrode=None):
 
         # Check for any other conditions that may indicate a failure
         if any(condition for condition in [len(normalized_entry.E) == 0]):
-                return Response({"error": "Additional conditions for failure."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": "Additional conditions for failure."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         # Data is converted to JSON
         serializer = CVEntrySerializer(normalized_entry)

@@ -3,7 +3,6 @@ from EChemServer.models import CVEntry
 
 
 class CVEntryService:
-
     db = CVCollection()
 
     @classmethod
@@ -41,7 +40,7 @@ class CVEntryService:
             entry.ce_electrode = cls.create_ce_electrode(db_entry.get_electrode('CE').__dict__['_descriptor'])
 
         entry.source = cls.create_source(db_entry.source.__dict__['_descriptor'])
-        #entry.source = db_entry.source.__dict__['_descriptor']
+        # entry.source = db_entry.source.__dict__['_descriptor']
         entry.citation = db_entry.citation(backend='text')
         entry.bibliography = cls.create_bibliography(db_entry.bibliography)
 
@@ -156,6 +155,48 @@ class CVEntryService:
         return entries
 
     @classmethod
+    def normalize_electrode(cls, electrode_data):
+        if electrode_data is None:
+            return None
+        normalized_electrode = {
+            'name': electrode_data.get('name'),
+            'function': electrode_data.get('function'),
+            'type': electrode_data.get('type'),
+            'material': electrode_data.get('material'),
+            'shape' : electrode_data.get('shape'),
+            'crystallographicOrientation': electrode_data.get('crystallographicOrientation'),
+            'preparation_procedure_description ': electrode_data('preparation_procedure_description ')
+        }
+        return normalized_electrode
+
+    @classmethod
+    def normalize_electrolyte(cls, electrolyte_data):
+        if electrolyte_data is None:
+            return None
+        normalized_electrolyte = {
+            'type': electrolyte_data.get('type'),
+            'components': cls.normalize_electrolyte_components(electrolyte_data.get('components')),
+        }
+        return normalized_electrolyte
+
+    @classmethod
+    def normalize_electrolyte_components(cls, components_data):
+        if components_data is None:
+            return None
+        normalized_components = []
+        for component in components_data:
+            normalized_component = {
+                'name': component.get('name'),
+                'type': component.get('type'),
+                'source': component.get('source'),
+                'purity_grade': component.get('purity_grade'),
+                'total_ion_conductivity_value': component.get('total_ion_conductivity_value'),
+                'total_ion_conductivity_unit': component.get('total_ion_conductivity_unit'),
+            }
+            normalized_components.append(normalized_component)
+        return normalized_components
+
+    @classmethod
     def normalize_ref(cls, entry, ref_electrode):
         try:
             entry_ref_potential = entry.get_electrode('REF')['potential']
@@ -163,25 +204,23 @@ class CVEntryService:
             entry_ref_potential = 4.44
 
         refs = {
-             'Ag/AgCl': 4.637,
-             'Ag/AgCl-sat': 4.637,
-             'Ag/AgCl_3M': 4.637,
-             'Hg/HgO/0.1 M NaOH': 4.9,  ### Dummy data
-             'RHE': 4.44,  ### Dummy Data
-             'SCE': 4.688,
-             'wire': 5.55, ### Dummy Data,
-             'SHE': 4.44,
-             'NCE': 4.720
+            'Ag/AgCl': 4.637,
+            'Ag/AgCl-sat': 4.637,
+            'Ag/AgCl_3M': 4.637,
+            'Hg/HgO/0.1 M NaOH': 4.9,  # Dummy data
+            'RHE': 4.44,  # Dummy Data
+            'SCE': 4.688,
+            'wire': 5.55,  # Dummy Data,
+            'SHE': 4.44,
+            'NCE': 4.720
         }
         if ref_electrode not in refs:
             raise ValueError(f"Unknown reference electrode type: {ref_electrode}")
 
         return entry_ref_potential - refs[ref_electrode]
 
-
-
     @classmethod
-    def normalize_cyclic_voltammogram(cls,entry, reference_electrode=None):
+    def normalize_cyclic_voltammogram(cls, cv_entry, reference_electrode=None):
 
         try:
             # If reference_electrode is not provided, use 'SHE' as the default
@@ -189,11 +228,11 @@ class CVEntryService:
                 reference_electrode = 'SHE'
 
             # Check if the necessary keys are present in the CV entry
-            if 'system' in entry and 'electrodes' in entry['system']:
+            if 'system' in cv_entry and 'electrodes' in cv_entry['system']:
 
                 # Find the reference electrode in the list of electrodes
                 ref_electrode_data = next(
-                    (electrode for electrode in entry.system.electrodes if electrode['name'] == reference_electrode),
+                    (electrode for electrode in cv_entry.system.electrodes if electrode['name'] == reference_electrode),
                     None
                 )
 
@@ -205,28 +244,29 @@ class CVEntryService:
                 raise ValueError("Invalid CV entry structure.")
 
             # Get the potential of the reference electrode for normalization
-            ref_potential = cls.normalize_ref(entry, reference_electrode)
+            ref_potential = cls.normalize_ref(cv_entry, reference_electrode)
 
             # Normalize the potential values
+
             normalized_potentials = [potential - ref_potential for potential in
-                                     entry['package']['resources'][0]['data']['E']]
+                                     cv_entry['package']['resources'][0]['data']['E']]
 
             # Create a new CVEntry instance with normalized data
             normalized_entry = CVEntry(
-                    name=entry['package']['resources'][0]['name'],
-                    t=entry['package']['resources'][0]['data']['t'],
-                    t_unit=entry['package']['resources'][0]['data']['t_unit'],
-                    E=normalized_potentials,
-                    E_unit=entry['package']['resources'][0]['data']['E_unit'],
-                    j=entry['package']['resources'][0]['data']['j'],
-                    j_unit=entry['package']['resources'][0]['data']['j_unit'],
-                    we_electrode=None,  # Update with the actual working electrode name
-                    ref_electrode=reference_electrode,
-                    ce_electrode=None,  # Update with the actual counter electrode name
-                    electrolyte=entry['system']['electrolyte'],
-                    source=entry['source'],
-                    citation=entry['source']['citation key'],
-                    bibliography=entry['source']['bibdata']
+                name=cv_entry.name,
+                t=cv_entry.t,
+                t_unit=cv_entry.t_unit,
+                E=normalized_potentials,
+                E_unit=cv_entry.E_unit,
+                j=cv_entry.j,
+                j_unit=cv_entry.j_unit,
+                we_electrode=cls.normalize_electrode(cv_entry.we_electrode),
+                ref_electrode=cls.normalize_electrode(cv_entry.ref_electrode),
+                ce_electrode=cls.normalize_electrode(cv_entry.ce_electrode),
+                electrolyte=cls.normalize_electrolyte(cv_entry.electrolyte),
+                source=cv_entry.source,
+                citation=cv_entry.citation,
+                bibliography=cv_entry.bibliography,
             )
 
             return normalized_entry
@@ -234,5 +274,4 @@ class CVEntryService:
         except Exception as e:
             # Handle exceptions
             print(f"Error in normalize_cyclic_voltammogram: {e}")
-
             return None

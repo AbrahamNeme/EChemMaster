@@ -60,3 +60,4 @@ def get_cventries_by_name(request, names):
     # Serialize the data to JSON
     serializer = CVEntrySerializer(cv_entries, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+

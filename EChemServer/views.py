@@ -49,3 +49,14 @@ def get_cventry_by_name(request, name):
     # Data is converted to JSON
     serializer = CVEntrySerializer(cv_entry)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def get_cventries_by_name(request, names):
+    # Retrieve the list of strings from the request data
+    name_list = names.split(',')
+    cv_entries = [CVEntryService.get_cventry_by_name(name, False) for name in name_list]
+
+    # Serialize the data to JSON
+    serializer = CVEntrySerializer(cv_entries, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)

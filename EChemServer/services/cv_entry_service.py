@@ -154,3 +154,85 @@ class CVEntryService:
     def filter_cventry_by_electrode_material(cls, material):
         entries = [entry for entry in cls.db if cls.has_material(entry, material)]
         return entries
+
+    @classmethod
+    def normalize_ref(cls, entry, ref_electrode):
+        try:
+            entry_ref_potential = entry.get_electrode('REF')['potential']
+        except:
+            entry_ref_potential = 4.44
+
+        refs = {
+             'Ag/AgCl': 4.637,
+             'Ag/AgCl-sat': 4.637,
+             'Ag/AgCl_3M': 4.637,
+             'Hg/HgO/0.1 M NaOH': 4.9,  ### Dummy data
+             'RHE': 4.44,  ### Dummy Data
+             'SCE': 4.688,
+             'wire': 5.55, ### Dummy Data,
+             'SHE': 4.44,
+             'NCE': 4.720
+        }
+        if ref_electrode not in refs:
+            raise ValueError(f"Unknown reference electrode type: {ref_electrode}")
+
+        return entry_ref_potential - refs[ref_electrode]
+
+
+
+    @classmethod
+    def normalize_cyclic_voltammogram(cls,entry, reference_electrode=None):
+
+        try:
+            # If reference_electrode is not provided, use 'SHE' as the default
+            if reference_electrode is None:
+                reference_electrode = 'SHE'
+
+            # Check if the necessary keys are present in the CV entry
+            if 'system' in entry and 'electrodes' in entry['system']:
+
+                # Find the reference electrode in the list of electrodes
+                ref_electrode_data = next(
+                    (electrode for electrode in entry.system.electrodes if electrode['name'] == reference_electrode),
+                    None
+                )
+
+                # Check if the reference electrode was found
+                if ref_electrode_data is None:
+                    raise ValueError(f"Reference electrode '{reference_electrode}' not found in the entry.")
+            else:
+                # 'system' or 'electrodes' key not found
+                raise ValueError("Invalid CV entry structure.")
+
+            # Get the potential of the reference electrode for normalization
+            ref_potential = cls.normalize_ref(entry, reference_electrode)
+
+            # Normalize the potential values
+            normalized_potentials = [potential - ref_potential for potential in
+                                     entry['package']['resources'][0]['data']['E']]
+
+            # Create a new CVEntry instance with normalized data
+            normalized_entry = CVEntry(
+                    name=entry['package']['resources'][0]['name'],
+                    t=entry['package']['resources'][0]['data']['t'],
+                    t_unit=entry['package']['resources'][0]['data']['t_unit'],
+                    E=normalized_potentials,
+                    E_unit=entry['package']['resources'][0]['data']['E_unit'],
+                    j=entry['package']['resources'][0]['data']['j'],
+                    j_unit=entry['package']['resources'][0]['data']['j_unit'],
+                    we_electrode=None,  # Update with the actual working electrode name
+                    ref_electrode=reference_electrode,
+                    ce_electrode=None,  # Update with the actual counter electrode name
+                    electrolyte=entry['system']['electrolyte'],
+                    source=entry['source'],
+                    citation=entry['source']['citation key'],
+                    bibliography=entry['source']['bibdata']
+            )
+
+            return normalized_entry
+
+        except Exception as e:
+            # Handle exceptions
+            print(f"Error in normalize_cyclic_voltammogram: {e}")
+
+            return None

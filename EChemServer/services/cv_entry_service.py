@@ -1,3 +1,4 @@
+import frictionless
 from unitpackage.cv.cv_collection import CVCollection
 from EChemServer.models import CVEntry
 
@@ -22,11 +23,18 @@ class CVEntryService:
         if not skip_plot_data:
             columns_as_lists = db_entry.df.values.T.tolist()
             entry.t = columns_as_lists[0]
-            entry.t_unit = db_entry.field_unit('t')
             entry.E = columns_as_lists[1]
-            entry.E_unit = db_entry.field_unit('E')
             entry.j = columns_as_lists[2]
+
+        entry.t_unit = db_entry.field_unit('t')
+        entry.E_unit = db_entry.field_unit('E')
+        try:
             entry.j_unit = db_entry.field_unit('j')
+        except frictionless.exception.FrictionlessException as e:
+            entry.j_unit = "A / m2"
+
+        entry.scanrate_value = db_entry.figure_description.scan_rate.value
+        entry.scanrate_unit = db_entry.figure_description.scan_rate.unit
 
         entry.electrolyte = db_entry.system.electrolyte.__dict__['_descriptor']
 

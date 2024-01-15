@@ -35,6 +35,8 @@ class CVEntry(models.Model):
     E_unit = models.CharField(max_length=20)
     j = models.JSONField()
     j_unit = models.CharField(max_length=20)
+    scanrate_value = models.JSONField()
+    scanrate_unit = models.CharField(max_length=20)
     we_electrode = models.JSONField()
     ref_electrode = models.JSONField()
     ce_electrode = models.JSONField()

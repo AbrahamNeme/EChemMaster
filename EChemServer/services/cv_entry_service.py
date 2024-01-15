@@ -40,7 +40,6 @@ class CVEntryService:
             entry.ce_electrode = cls.create_ce_electrode(db_entry.get_electrode('CE').__dict__['_descriptor'])
 
         entry.source = cls.create_source(db_entry.source.__dict__['_descriptor'])
-        # entry.source = db_entry.source.__dict__['_descriptor']
         entry.citation = db_entry.citation(backend='text')
         entry.bibliography = cls.create_bibliography(db_entry.bibliography)
 

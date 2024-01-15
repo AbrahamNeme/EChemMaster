@@ -21,7 +21,6 @@ def get_all_cventry(request):
 def get_cventry_by_material(request, material):
     # Finds and returns the entries with the matching material
     filtered_entries = CVEntryService.filter_cventry_by_electrode_material(material)
-    print(filtered_entries)
 
     # Creates a list with the names of the matching entries
     entries_names = []

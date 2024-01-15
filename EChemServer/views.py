@@ -61,29 +61,3 @@ def get_cventry_by_name(request, name):
     # Data is converted to JSON
     serializer = CVEntrySerializer(cv_entry)
     return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@api_view(['GET'])
-def get_normalized_cventry(request, name, reference_electrode=None):
-    try:
-        # Get the CVEntry by name
-        cv_entry = CVEntryService.get_cventry_by_name(name, False)
-
-        # Normalize the CV data using the reference electrode 'SHE'
-        normalized_entry = CVEntryService.normalize_cyclic_voltammogram(cv_entry, reference_electrode)
-
-        # Check if normalization was successful
-        if normalized_entry is None or not isinstance(normalized_entry.E, list):
-            return Response({"error": "Normalization failed"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        # Check for any other conditions that may indicate a failure
-        if any(condition for condition in [len(normalized_entry.E) == 0]):
-            return Response({"error": "Additional conditions for failure."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        # Data is converted to JSON
-        serializer = CVEntrySerializer(normalized_entry)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    except Exception as e:
-        # Handle exceptions
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

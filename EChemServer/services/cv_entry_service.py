@@ -64,7 +64,7 @@ class CVEntryService:
         if 'supplier' in ce:
             ce_electrode['supplier'] = ce['supplier']
         if 'shape' in ce:
-            ce_electrode['shape'] = ce['shape']
+            ce_electrode['shape'] = ce['shape']['type']
         return ce_electrode
 
     @classmethod
@@ -73,7 +73,9 @@ class CVEntryService:
         ref_electrode['name'] = ref['name']
         ref_electrode['function'] = ref['function']
         if 'source' in ref:
-            if 'supplier' in ref['source']:
+            if 'manufacturer' in ref['source']:
+                ref_electrode['source'] = ref['source']['manufacturer']
+            elif 'supplier' in ref['source']:
                 ref_electrode['source'] = ref['source']['supplier']
             else:
                 ref_electrode['source'] = ref['source']
